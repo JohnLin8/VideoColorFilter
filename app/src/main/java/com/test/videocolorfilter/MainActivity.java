@@ -42,9 +42,9 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
 
     private void initView() {
         mVideoView = findViewById(R.id.video_view);
-        seekBarHue = (SeekBar) findViewById(R.id.bar_hue);
-        seekBarSaturation = (SeekBar) findViewById(R.id.bar_saturation);
-        seekBarLightness = (SeekBar) findViewById(R.id.bar_lightness);
+        seekBarHue = findViewById(R.id.bar_hue);
+        seekBarSaturation = findViewById(R.id.bar_saturation);
+        seekBarLightness = findViewById(R.id.bar_lightness);
     }
 
     private void initData() {
