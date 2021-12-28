@@ -11,12 +11,9 @@ import android.widget.SeekBar;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
+public class MainActivity extends AppCompatActivity {
 
     private GLSurfaceView mVideoView = null;
-    private SeekBar seekBarHue;
-    private SeekBar seekBarSaturation;
-    private SeekBar seekBarLightness;
 
     private ColorFilterMatrixUtil mColorFilterMatrixUtil = new ColorFilterMatrixUtil();
     private RectShape mReactShape = null;
@@ -34,21 +31,16 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initView();
-        initData();
-        setListener();
 
-    }
-
-    private void initView() {
         mVideoView = findViewById(R.id.video_view);
-        seekBarHue = findViewById(R.id.bar_hue);
-        seekBarSaturation = findViewById(R.id.bar_saturation);
-        seekBarLightness = findViewById(R.id.bar_lightness);
+        initData();
+        setVideoView();
     }
 
     private void initData() {
+        //设置版本2
         mVideoView.setEGLContextClientVersion(2);
+        //设置渲染器
         mVideoView.setRenderer(new GLSurfaceView.Renderer() {
             @Override
             public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
@@ -85,50 +77,24 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         });
     }
 
-    private void setListener() {
-        seekBarHue.setOnSeekBarChangeListener(this);
-        seekBarSaturation.setOnSeekBarChangeListener(this);
-        seekBarLightness.setOnSeekBarChangeListener(this);
-    }
-
-
     private void setupPlayer() {
         try {
             mMediaPlayer = MediaPlayer.create(this, R.raw.testfile);
             mMediaPlayer.setSurface(mSurface);
             mMediaPlayer.setLooping(true);
+            mMediaPlayer.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mediaPlayer) {
-                mMediaPlayer.start();
-            }
-        });
-
     }
 
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-        mHueValue = (seekBarHue.getProgress() - 128f) * 1.0f / 128f * 180;
-        mSaturationValue = seekBarSaturation.getProgress() / 128f;
-        mLightnessValue = seekBarLightness.getProgress() / 128f;
-
+    public void setVideoView() {
+        mHueValue = 90;        //-180~180
+        mSaturationValue = 1;    //-1~1
+        mLightnessValue = 1;     //-1~1
         mColorFilterMatrixUtil.setHue(mHueValue);
         mColorFilterMatrixUtil.setSaturation(mSaturationValue);
         mColorFilterMatrixUtil.setLightness(mLightnessValue);
-
     }
 
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-
-    }
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-
-    }
 }
