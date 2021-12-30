@@ -7,6 +7,13 @@
     android:orientation="horizontal"
     tools:context=".MainActivity">
 
+    <android.opengl.GLSurfaceView
+        android:id="@+id/video_view"
+        android:layout_width="400dp"
+        android:layout_height="240dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextureView
         android:id="@+id/textureView"
         android:layout_width="400dp"
