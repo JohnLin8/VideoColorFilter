@@ -21,10 +21,11 @@ import java.util.List;
  */
 public class CameraHelper implements Camera.PreviewCallback {
     private static final String TAG = "CameraHelper";
-    private Camera mCamera;
+    public Camera mCamera;
     private int mCameraId;
     private Point previewViewSize;
     private View previewDisplayView;
+    public  SurfaceTexture surfaceTexture;
     private Camera.Size previewSize;
     private Point specificPreviewSize;
     private int displayOrientation = 0;
@@ -50,17 +51,17 @@ public class CameraHelper implements Camera.PreviewCallback {
         }
     }
 
-    public void init() {
-        if (previewDisplayView instanceof TextureView) {
-            ((TextureView) this.previewDisplayView).setSurfaceTextureListener(textureListener);
-        } else if (previewDisplayView instanceof SurfaceView) {
-            ((SurfaceView) previewDisplayView).getHolder().addCallback(surfaceCallback);
-        }
-
-        if (isMirror) {
-            previewDisplayView.setScaleX(-1);
-        }
-    }
+//    public void init() {
+//        if (previewDisplayView instanceof TextureView) {
+//            ((TextureView) this.previewDisplayView).setSurfaceTextureListener(textureListener);
+//        } else if (previewDisplayView instanceof SurfaceView) {
+//            ((SurfaceView) previewDisplayView).getHolder().addCallback(surfaceCallback);
+//        }
+//
+//        if (isMirror) {
+//            previewDisplayView.setScaleX(-1);
+//        }
+//    }
 
     public void start() {
         synchronized (this) {
@@ -111,12 +112,13 @@ public class CameraHelper implements Camera.PreviewCallback {
                     }
                 }
                 mCamera.setParameters(parameters);
-                if (previewDisplayView instanceof TextureView) {
-                    mCamera.setPreviewTexture(((TextureView) previewDisplayView).getSurfaceTexture());
-                } else {
-                    mCamera.setPreviewDisplay(((SurfaceView) previewDisplayView).getHolder());
-                }
-                mCamera.setPreviewCallback(this);
+//                if (previewDisplayView instanceof TextureView) {
+//                    mCamera.setPreviewTexture(((TextureView) previewDisplayView).getSurfaceTexture());
+//                } else {
+//                    mCamera.setPreviewDisplay(((SurfaceView) previewDisplayView).getHolder());
+//                }
+//                mCamera.setPreviewCallback(this);
+                mCamera.setPreviewTexture(surfaceTexture);
                 mCamera.startPreview();
                 if (cameraListener != null) {
                     cameraListener.onCameraOpened(mCamera, mCameraId, displayOrientation, isMirror);
@@ -266,58 +268,58 @@ public class CameraHelper implements Camera.PreviewCallback {
         }
     }
 
-    private TextureView.SurfaceTextureListener textureListener = new TextureView.SurfaceTextureListener() {
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
-//            start();
-            if (mCamera != null) {
-                try {
-                    mCamera.setPreviewTexture(surfaceTexture);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
-            Log.i(TAG, "onSurfaceTextureSizeChanged: " + width + "  " + height);
-        }
-
-        @Override
-        public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
-            stop();
-            return false;
-        }
-
-        @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
-
-        }
-    };
-    private SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
-        @Override
-        public void surfaceCreated(SurfaceHolder holder) {
-//            start();
-            if (mCamera != null) {
-                try {
-                    mCamera.setPreviewDisplay(holder);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        @Override
-        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-        }
-
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
-            stop();
-        }
-    };
+//    private TextureView.SurfaceTextureListener textureListener = new TextureView.SurfaceTextureListener() {
+//        @Override
+//        public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
+////            start();
+//            if (mCamera != null) {
+//                try {
+//                    mCamera.setPreviewTexture(surfaceTexture);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//
+//        @Override
+//        public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
+//            Log.i(TAG, "onSurfaceTextureSizeChanged: " + width + "  " + height);
+//        }
+//
+//        @Override
+//        public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
+//            stop();
+//            return false;
+//        }
+//
+//        @Override
+//        public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+//
+//        }
+//    };
+//    private SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
+//        @Override
+//        public void surfaceCreated(SurfaceHolder holder) {
+////            start();
+//            if (mCamera != null) {
+//                try {
+//                    mCamera.setPreviewDisplay(holder);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//
+//        @Override
+//        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+//
+//        }
+//
+//        @Override
+//        public void surfaceDestroyed(SurfaceHolder holder) {
+//            stop();
+//        }
+//    };
 
     public void changeDisplayOrientation(int rotation) {
         if (mCamera != null) {

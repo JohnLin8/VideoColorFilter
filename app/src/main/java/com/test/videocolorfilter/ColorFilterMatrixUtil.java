@@ -8,7 +8,7 @@ import android.graphics.ColorMatrix;
 
 public class ColorFilterMatrixUtil {
 
-    private final float IDENTIFY_MATRIX[] = {
+    private final float[] IDENTIFY_MATRIX = {
             1, 0, 0, 0, 0,
             0, 1, 0, 0, 0,
             0, 0, 1, 0, 0,
@@ -47,7 +47,7 @@ public class ColorFilterMatrixUtil {
 
     public final float[] getColorFilterArray16() {
         float[] colorMatrixArray = mCurrentColorFilter.getArray();
-        float filter[] = new float[16];
+        float[] filter = new float[16];
         for (int i = 0; i < 20; i++) {
             int row = i / 5;
             int column = i % 5;

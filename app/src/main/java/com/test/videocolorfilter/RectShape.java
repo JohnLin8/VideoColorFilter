@@ -3,9 +3,7 @@ package com.test.videocolorfilter;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
-import android.util.Log;
 
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -127,7 +125,7 @@ public class RectShape {
 
     }
 
-    public void setColorFilterArray(float filter[]) {
+    public void setColorFilterArray(float[] filter) {
         System.arraycopy(filter, 0, mColorFilterArray, 0, 16);
     }
 

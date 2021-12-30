@@ -26,6 +26,8 @@ import android.widget.Toast;
 import com.test.videocolorfilter.camera.CameraHelper;
 import com.test.videocolorfilter.camera.CameraListener;
 
+import java.io.IOException;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 //        init();
         initData();
         setVideoView();
-        initCamera();
+//        initCamera();
     }
 
     private void initData() {
@@ -84,21 +86,15 @@ public class MainActivity extends AppCompatActivity {
                         mFrameAvailable = true;
                     }
                 });
-                mSurface = new Surface(mSurfaceTexture);
+//                mSurface = new Surface(mSurfaceTexture);
                 mReactShape.setTextureId(textureId);
-
-                Rect rect = new Rect();
-                Canvas canvas = mSurface.lockCanvas(rect);
-
-//                previewView.setSurfaceTexture(mSurfaceTexture);
-//                initCamera();
-//                setupPlayer();
-
             }
 
             @Override
             public void onSurfaceChanged(GL10 gl10, int i, int i1) {
-
+                initCamera();
+                cameraHelper.surfaceTexture=mSurfaceTexture;
+                cameraHelper.start();
             }
 
             @Override
@@ -115,22 +111,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setupPlayer() {
-        try {
-            mMediaPlayer = MediaPlayer.create(this, R.raw.testfile);
-            mMediaPlayer.setSurface(mSurface);
-            mMediaPlayer.setLooping(true);
-            mMediaPlayer.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     //
     public void setVideoView() {
-        mHueValue = -15;        //-180~180
-        mSaturationValue = 1;    //-1~1
-        mLightnessValue = 1;     //-1~1
+        mHueValue = -5.0f;        //-180~180
+        mSaturationValue = 0.8f;    //0~
+        mLightnessValue = 0.8f;     //0~
         mColorFilterMatrixUtil.setHue(mHueValue);
         mColorFilterMatrixUtil.setSaturation(mSaturationValue);
         mColorFilterMatrixUtil.setLightness(mLightnessValue);
@@ -150,12 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPreview(final byte[] nv21, Camera camera) {
-                int[] rgb = new int[400 * 240];
-                decodeYUV420SP(rgb, nv21, 400, 240);
-                @SuppressLint("Recycle") Parcel parcel = Parcel.obtain();
-//                parcel.writeByteArray(nv21);
-                parcel.writeIntArray(rgb);
-                mSurface.readFromParcel(parcel);
+
             }
 
             @Override
@@ -180,12 +160,13 @@ public class MainActivity extends AppCompatActivity {
                 .rotation(getWindowManager().getDefaultDisplay().getRotation())
                 .additionalRotation(180)
                 .specificCameraId(0)
-                .isMirror(true)
-                .previewOn(previewView)
+                .isMirror(false)
+                .previewOn(mVideoView)
                 .cameraListener(cameraListener)
                 .build();
-        cameraHelper.init();
-        cameraHelper.start();
+
+//        cameraHelper.init();
+//        cameraHelper.start();
     }
 
 
@@ -254,95 +235,4 @@ public class MainActivity extends AppCompatActivity {
 //        previewView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 //        init();
 //    }
-
-    static public void decodeYUV420SP(int[] rgb, byte[] yuv420sp, int width, int height) {
-        final int frameSize = width * height;
-
-        for (int j = 0, yp = 0; j < height; j++) {
-            int uvp = frameSize + (j >> 1) * width, u = 0, v = 0;
-            for (int i = 0; i < width; i++, yp++) {
-                int y = (0xff & ((int) yuv420sp[yp])) - 16;
-                if (y < 0)
-                    y = 0;
-                if ((i & 1) == 0) {
-                    v = (0xff & yuv420sp[uvp++]) - 128;
-                    u = (0xff & yuv420sp[uvp++]) - 128;
-                }
-
-                int y1192 = 1192 * y;
-                int r = (y1192 + 1634 * v);
-                int g = (y1192 - 833 * v - 400 * u);
-                int b = (y1192 + 2066 * u);
-
-                if (r < 0)
-                    r = 0;
-                else if (r > 262143)
-                    r = 262143;
-                if (g < 0)
-                    g = 0;
-                else if (g > 262143)
-                    g = 262143;
-                if (b < 0)
-                    b = 0;
-                else if (b > 262143)
-                    b = 262143;
-
-                rgb[yp] = 0xff000000 | ((r << 6) & 0xff0000) | ((g >> 2) & 0xff00) | ((b >> 10) & 0xff);
-            }
-        }
-    }
-
-    public void decodeYUV(int[] out, byte[] fg, int width, int height) throws NullPointerException, IllegalArgumentException {
-
-        int sz = width * height;
-        if (out == null)
-            throw new NullPointerException("buffer out is null");
-        if (out.length < sz)
-            throw new IllegalArgumentException("buffer out size " + out.length + " < minimum " + sz);
-        if (fg == null)
-            throw new NullPointerException("buffer *fg* is null");
-        if (fg.length < sz)
-            throw new IllegalArgumentException("buffer fg size " + fg.length + " < minimum " + sz * 3 / 2);
-        int i, j;
-        int Y, Cr = 0, Cb = 0;
-        for (j = 0; j < height; j++) {
-            int pixPtr = j * width;
-            final int jDiv2 = j >> 1;
-            for (i = 0; i < width; i++) {
-                Y = fg[pixPtr];
-                if (Y < 0)
-                    Y += 255;
-                if ((i & 0x1) != 1) {
-                    final int cOff = sz + jDiv2 * width + (i >> 1) * 2;
-                    Cb = fg[cOff];
-                    if (Cb < 0)
-                        Cb += 127;
-                    else
-                        Cb -= 128;
-                    Cr = fg[cOff + 1];
-                    if (Cr < 0)
-                        Cr += 127;
-                    else
-                        Cr -= 128;
-                }
-                int R = Y + Cr + (Cr >> 2) + (Cr >> 3) + (Cr >> 5);
-                if (R < 0)
-                    R = 0;
-                else if (R > 255)
-                    R = 255;
-                int G = Y - (Cb >> 2) + (Cb >> 4) + (Cb >> 5) - (Cr >> 1)
-                        + (Cr >> 3) + (Cr >> 4) + (Cr >> 5);
-                if (G < 0)
-                    G = 0;
-                else if (G > 255)
-                    G = 255;
-                int B = Y + Cb + (Cb >> 1) + (Cb >> 2) + (Cb >> 6);
-                if (B < 0)
-                    B = 0;
-                else if (B > 255)
-                    B = 255;
-                out[pixPtr++] = 0xff000000 + (B << 16) + (G << 8) + R;
-            }
-        }
-    }
 }
