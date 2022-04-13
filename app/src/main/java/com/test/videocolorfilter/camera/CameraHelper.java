@@ -20,7 +20,7 @@ import java.util.List;
  * 相机辅助类，和{@link CameraListener}共同使用，获取nv21数据等操作
  */
 public class CameraHelper implements Camera.PreviewCallback {
-    private static final String TAG = "CameraHelper";
+    private static final String TAG = "CameraHelper----";
     public Camera mCamera;
     private int mCameraId;
     private Point previewViewSize;
@@ -51,17 +51,17 @@ public class CameraHelper implements Camera.PreviewCallback {
         }
     }
 
-//    public void init() {
+    public void init() {
 //        if (previewDisplayView instanceof TextureView) {
 //            ((TextureView) this.previewDisplayView).setSurfaceTextureListener(textureListener);
 //        } else if (previewDisplayView instanceof SurfaceView) {
 //            ((SurfaceView) previewDisplayView).getHolder().addCallback(surfaceCallback);
 //        }
-//
-//        if (isMirror) {
-//            previewDisplayView.setScaleX(-1);
-//        }
-//    }
+
+        if (isMirror) {
+            previewDisplayView.setScaleX(-1);
+        }
+    }
 
     public void start() {
         synchronized (this) {
@@ -86,8 +86,8 @@ public class CameraHelper implements Camera.PreviewCallback {
                 mCamera = Camera.open(mCameraId);
             }
 
-            displayOrientation = getCameraOri(rotation);
-            mCamera.setDisplayOrientation(displayOrientation);
+//            displayOrientation = getCameraOri(rotation);
+//            mCamera.setDisplayOrientation(displayOrientation);
             try {
                 Camera.Parameters parameters = mCamera.getParameters();
                 parameters.setPreviewFormat(ImageFormat.NV21);
@@ -97,6 +97,7 @@ public class CameraHelper implements Camera.PreviewCallback {
                 List<Camera.Size> supportedPreviewSizes = parameters.getSupportedPreviewSizes();
                 if (supportedPreviewSizes != null && supportedPreviewSizes.size() > 0) {
                     previewSize = getBestSupportedSize(supportedPreviewSizes, previewViewSize);
+                    Log.d(TAG,previewSize.height+":"+previewSize.width);
                 }
                 parameters.setPreviewSize(previewSize.width, previewSize.height);
 

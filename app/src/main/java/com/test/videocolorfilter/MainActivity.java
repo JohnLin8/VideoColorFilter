@@ -99,9 +99,9 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onDrawFrame(GL10 gl10) {
-                if (mFrameAvailable) {
+                if (mSurfaceTexture!=null) {
                     mSurfaceTexture.updateTexImage();
-                    mFrameAvailable = false;
+//                    mFrameAvailable = false;
                 }
 
                 float[] colorFilter = mColorFilterMatrixUtil.getColorFilterArray16();
@@ -110,12 +110,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
     //
     public void setVideoView() {
         mHueValue = -5.0f;        //-180~180
-        mSaturationValue = 0.8f;    //0~
-        mLightnessValue = 0.8f;     //0~
+        mSaturationValue = 0.0f;    //0~
+        mLightnessValue = 1.0f;     //0~
         mColorFilterMatrixUtil.setHue(mHueValue);
         mColorFilterMatrixUtil.setSaturation(mSaturationValue);
         mColorFilterMatrixUtil.setLightness(mLightnessValue);
@@ -130,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
             public void onCameraOpened(Camera camera, int cameraId, int displayOrientation, boolean isMirror) {
                 Camera.Size lastPreviewSize = previewSize;
                 previewSize = camera.getParameters().getPreviewSize();
-
             }
 
             @Override
@@ -156,16 +154,16 @@ public class MainActivity extends AppCompatActivity {
         };
         //TODO cameraHelper
         cameraHelper = new CameraHelper.Builder()
-                .previewViewSize(new Point(previewView.getMeasuredWidth(), previewView.getMeasuredHeight()))
+                .previewViewSize(new Point(mVideoView.getMeasuredWidth(), mVideoView.getMeasuredHeight()))
                 .rotation(getWindowManager().getDefaultDisplay().getRotation())
-                .additionalRotation(180)
+                .additionalRotation(0)
                 .specificCameraId(0)
-                .isMirror(false)
+                .isMirror(true)
                 .previewOn(mVideoView)
                 .cameraListener(cameraListener)
                 .build();
 
-//        cameraHelper.init();
+        cameraHelper.init();
 //        cameraHelper.start();
     }
 
